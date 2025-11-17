@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Test de Competencias</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #e7f0ff;
+        text-align: center;
+        padding: 40px;
+    }
+
+    #contenedor {
+        background: white;
+        max-width: 600px;
+        margin: auto;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #999;
+    }
+
+    .btn {
+        display: block;
+        width: 90%;
+        margin: 10px auto;
+        padding: 12px;
+        background: #1e3a8a;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+    }
+
+    .btn:hover { background: #345ad8; }
+
+    .correcta { background: #4caf50 !important; color:white; }
+    .incorrecta { background: #f44336 !important; color:white; }
+
+    #resultado {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+
+<div id="contenedor">
+    <div id="inicio">
+        <h2>Ingresa tu nombre para comenzar</h2>
+        <input id="nombre" placeholder="Tu nombre" style="padding:10px; width:90%; margin-bottom:15px;">
+        <button class="btn" onclick="iniciar()">Ingresar</button>
+    </div>
+
+    <div id="bienvenida" style="display:none;">
+        <h2>Bienvenido(a) al Test de Competencias</h2>
+        <p id="textoNombre"></p>
+        <button class="btn" onclick="iniciarQuiz()">Comenzar Quiz</button>
+    </div>
+
+    <div id="quiz" style="display:none;">
+        <h2 id="pregunta"></h2>
+        <div id="opciones"></div>
+    </div>
+
+    <div id="final" style="display:none;">
+        <h2>Resultado final</h2>
+        <p id="resultado"></p>
+    </div>
+</div>
+
+<script>
+let preguntas = [
+    // 7 V / F
+    {p: "La comunicación asertiva implica expresar ideas sin herir a otros.", o:["Verdadero","Falso"], c:0},
+    {p: "La puntualidad no es una competencia laboral importante.", o:["Verdadero","Falso"], c:1},
+    {p: "La resiliencia es la capacidad de adaptarse ante dificultades.", o:["Verdadero","Falso"], c:0},
+    {p: "Trabajar en equipo significa hacer todo solo.", o:["Verdadero","Falso"], c:1},
+    {p: "Resolver problemas implica analizar y buscar soluciones.", o:["Verdadero","Falso"], c:0},
+    {p: "La escucha activa consiste en interrumpir para dar tu opinión.", o:["Verdadero","Falso"], c:1},
+    {p: "La creatividad ayuda a encontrar soluciones nuevas.", o:["Verdadero","Falso"], c:0},
+
+    // 8 opción múltiple
+    {p:"¿Qué es trabajo en equipo?", 
+     o:["Hacer tareas solo","Colaborar con otros hacia un objetivo","Ignorar a los demás","Trabajar más lento"], c:1},
+    {p:"La competencia 'adaptabilidad' significa:", 
+     o:["Cambiar cuando es necesario","Nunca cambiar","Evitar retos","Seguir siempre igual"], c:0},
+    {p:"Un ejemplo de liderazgo es:", 
+     o:["Delegar sin comunicar","Culpar a otros","Guiar al grupo","Ignorar problemas"], c:2},
+    {p:"La autogestión es:", 
+     o:["Esperar órdenes","Organizarse solo","Evitar responsabilidades","No planear"], c:1},
+    {p:"La empatía significa:", 
+     o:["Ponerse en el lugar del otro","Ignorar sentimientos","Criticar siempre","No escuchar"], c:0},
+    {p:"¿Qué es comunicación efectiva?", 
+     o:["Hablar mucho","Expresar ideas con claridad","Gritar más fuerte","No escuchar"], c:1},
+    {p:"¿Cuál es un ejemplo de iniciativa?", 
+     o:["Esperar instrucciones","Proponer ideas","No participar","Evitar tareas"], c:1},
+    {p:"La resolución de conflictos implica:", 
+     o:["Aumentar la pelea","Ignorar problemas","Buscar soluciones","Gritar"], c:2}
+];
+
+// Mezclar preguntas
+preguntas = preguntas.sort(() => Math.random() - 0.5);
+
+let indice = 0;
+let puntaje = 0;
+const valorPregunta = 6.7; // Regla de 3 para 15 preguntas
+
+function iniciar() {
+    let nombre = document.getElementById("nombre").value;
+
+    if (nombre.trim() === "") {
+        alert("Ingresa tu nombre");
+        return;
+    }
+
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("bienvenida").style.display = "block";
+    document.getElementById("textoNombre").innerText = "Hola " + nombre + ", aquí comienza tu prueba.";
+}
+
+function iniciarQuiz() {
+    document.getElementById("bienvenida").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+    mostrarPregunta();
+}
+
+function mostrarPregunta() {
+    let q = preguntas[indice];
+    document.getElementById("pregunta").innerText = q.p;
+
+    let opcionesHTML = "";
+    q.o.forEach((op, i) => {
+        opcionesHTML += `<button class='btn' onclick='responder(${i})'>${op}</button>`;
+    });
+
+    document.getElementById("opciones").innerHTML = opcionesHTML;
+}
+
+function responder(elegida) {
+    let q = preguntas[indice];
+    let botones = document.querySelectorAll("#opciones button");
+
+    if (elegida === q.c) {
+        botones[elegida].classList.add("correcta");
+        puntaje += valorPregunta;
+    } else {
+        botones[elegida].classList.add("incorrecta");
+        botones[q.c].classList.add("correcta");
+    }
+
+    setTimeout(() => {
+        indice++;
+        if (indice < preguntas.length) {
+            mostrarPregunta();
+        } else {
+            finalizar();
+        }
+    }, 900);
+}
+
+function finalizar() {
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("final").style.display = "block";
+    document.getElementById("resultado").innerText = "Tu puntaje final es: " + Math.round(puntaje) + "%";
+}
+</script>
+
+</body>
+</html>
+
