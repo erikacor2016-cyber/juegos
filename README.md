@@ -1,2 +1,0 @@
-# juegos
-preguntas de estudio
